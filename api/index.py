@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request
-from vercel_wsgi import handle_request
 import requests
 
 app = Flask(__name__)
@@ -65,6 +64,7 @@ def index():
                 error = f"Could not get weather data for '{city}'. Please check the city name or try again."
     return render_template('index.html', weather=weather, forecast=forecast, error=error)
 
-# Vercel entry point
-def handler(environ, start_response):
-    return handle_request(app, environ, start_response)
+# Required for Vercel
+app = app
+if __name__ == '__main__':
+    app.run(debug=True)
