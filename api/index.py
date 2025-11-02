@@ -52,6 +52,5 @@ def get_forecast_data(city):
 def index():
 
     return render_template('index.html')
-
 # Required for Vercel
 app = app
