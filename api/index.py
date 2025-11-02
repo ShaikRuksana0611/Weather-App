@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from vercel_wsgi import handle_request
 import requests
 
 app = Flask(__name__)
@@ -6,11 +7,6 @@ app = Flask(__name__)
 API_KEY = 'dc315c9afbba8e9e2f1c494d48213cc0'
 
 def get_weather_data(city):
-    """
-    Fetch weather data for a city from OpenWeatherMap and normalize the keys
-    Returns a dict with keys: city, temperature, condition, humidity, wind_speed
-    or None if the request fails.
-    """
     try:
         url = 'https://api.openweathermap.org/data/2.5/weather'
         params = {
@@ -30,12 +26,8 @@ def get_weather_data(city):
         }
     except requests.RequestException:
         return None
+
 def get_forecast_data(city):
-    """
-    Fetch 5-day weather forecast data for a city from OpenWeatherMap
-    Returns a list of dicts with keys: date, temperature, condition
-    or None if the request fails.
-    """
     try:
         url = 'https://api.openweathermap.org/data/2.5/forecast'
         params = {
@@ -56,6 +48,7 @@ def get_forecast_data(city):
         return forecast_list
     except requests.RequestException:
         return None
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     weather = None
@@ -72,5 +65,6 @@ def index():
                 error = f"Could not get weather data for '{city}'. Please check the city name or try again."
     return render_template('index.html', weather=weather, forecast=forecast, error=error)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# Vercel entry point
+def handler(environ, start_response):
+    return handle_request(app, environ, start_response)
