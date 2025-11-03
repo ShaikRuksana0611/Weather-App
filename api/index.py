@@ -50,7 +50,18 @@ def get_forecast_data(city):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-
-    return render_template('index.html')
+    weather = None
+    forecast = None
+    error = None
+    if request.method == 'POST':
+        city = request.form.get('city', '').strip()
+        if not city:
+            error = "Please enter a city name."
+        else:
+            weather = get_weather_data(city)
+            forecast = get_forecast_data(city)
+            if weather is None:
+                error = f"Could not get weather data for '{city}'. Please check the city name or try again."
+    return render_template('index.html', weather=weather, forecast=forecast, error=error)
 # Required for Vercel
 app = app
